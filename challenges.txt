@@ -1,0 +1,41 @@
+***** Scanning *****
+(Sometime called lexing, or lexical analysis)
+
+Scanner converts raw source code as a series of characters and groups it into a
+ series of tokens.
+
+Notes:
+ - Lexeme: The smallest meaningful sequence of characters.
+
+*** Challenges *** 
+1. The lexical grammars of Python and Haskell are not regular. What does that 
+    mean, and why aren’t they?
+    
+   Ans: 
+   A __regular language__ is a formal language that can be defined by a regular 
+    expression, or equivalently, language that can be recognized by a finite 
+    automaton.
+        
+    Python and Haskell code are not regular because they are indentation
+     sensitive, so they a push-down automaton is required to recognize such
+     language.
+     
+2. Aside from separating tokens—distinguishing `print foo` from `printfoo` — 
+    spaces aren’t used for much in most languages. However, in a couple of dark 
+    corners, a space does affect how code is parsed in CoffeeScript, Ruby, and 
+    the C preprocessor. Where and what effect does it have in each of those 
+    languages?
+    
+   Ans:
+   In C, the definition of macros is sensitive to spaces.
+
+3. Our scanner here, like most, discards comments and whitespace since those 
+    aren’t needed by the parser. Why might you want to write a scanner that does
+    not discard those? What would it be useful for?
+
+   Ans:
+   To write a linter or code formatter that unify coding style.
+
+4. Add support to Lox’s scanner for C-style /* ... */ block comments. Make sure 
+    to handle newlines in them. Consider allowing them to nest. Is adding 
+    support for nesting more work than you expected? Why?
