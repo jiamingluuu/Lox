@@ -2,6 +2,7 @@
  * Filename: Scanner.cpp
  */
 #include "Scanner.h"
+#include "Token.h"
 #include "TokenType.h"
 #include "Lox.h"
 
@@ -32,7 +33,7 @@ std::vector<Token> Scanner::scanTokens() {
         scanToken();
     }
 
-    tokens.push_back(Token(TokenType::END_OF_FILE, "", line));
+    tokens.push_back(Token(TokenType::END_OF_FILE, "", std::any {}, line));
     return tokens;
 }
 
@@ -107,8 +108,66 @@ void Scanner::scanToken() {
 
 void Scanner::string() {
     while (peek() != '"' && !isAtEnd()) {
-        
+        if (peek() == '\n') line++;
+        advance();
     }
+
+    if (isAtEnd()) {
+        Lox::error(line, "Unterminated string.");
+        return;
+    }
+
+    // consume the enclosing '"' char
+    advance();
+    
+    // add the value inside the "" char
+    std::string value = source.substr(start + 1, current - 1);
+    addToken(TokenType::STRING, value);
+}
+
+void Scanner::blockComment() {
+    while (peek() != '*' && peekNext() != '/' && !isAtEnd()) {
+        if (peek() == '\n') line++;
+        advance();
+    }
+    
+    if (isAtEnd()) {
+        Lox::error(line, "Unterminated string.");
+        return;
+    }
+    
+    // consume the enclosing '*/' char
+    advance();
+    advance();
+}
+
+void Scanner::number() {
+    while(isDigit(peek())) advance();
+
+    if (peek() == '.' && isDigit(peekNext())) {
+        // consume the decimal point to prevent from parsing something like
+        //  123.add(567)
+        advance();
+        
+        while (isDigit(peek())) advance();
+    }
+    
+    addToken(TokenType::NUMBER, std::stod(source.substr(start, current)));  
+}
+
+void Scanner::identifier() {
+    while (isAlphaNumeric(peek())) advance();
+    
+    std::string text = source.substr(start, current);
+    TokenType type;
+
+    if (keywords.count(text) > 0) {
+        type = keywords[text];
+    } else {
+        type = TokenType::IDENTIFIER;
+    }
+
+    addToken(type);
 }
 
 bool Scanner::isAtEnd() {
@@ -119,8 +178,14 @@ char Scanner::advance() {
     return source[current++];
 }
 
+void Scanner::addToken(TokenType type, std::any literal) {
+    tokens.push_back(Token(type, source.substr(start, current - start), 
+            literal, line));
+}
+
 void Scanner::addToken(TokenType type) {
-    tokens.push_back(Token(type, "", line));
+    tokens.push_back(Token(type, source.substr(start, current - start), 
+                std::any{}, line));
 }
 
 bool Scanner::match(char expected) {

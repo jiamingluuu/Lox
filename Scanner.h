@@ -4,6 +4,7 @@
 #ifndef __SCANNER_H
 #define __SCANNER_H
 
+#include <any>
 #include <string>
 #include <vector>
 #include <map>
@@ -31,6 +32,7 @@ private:
     void identifier();
     bool isAtEnd();
     char advance();
+    void addToken(TokenType type, std::any literal);
     void addToken(TokenType type);
     bool match(char expected);
     char peek();
