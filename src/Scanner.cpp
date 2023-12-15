@@ -1,28 +1,27 @@
 /*
  * Filename: Scanner.cpp
  */
-#include "Scanner.h"
-#include "Token.h"
-#include "TokenType.h"
-#include "Lox.h"
+#include "../include/Scanner.h"
+#include "../include/Token.h"
+#include "../include/Lox.h"
 
 std::map<std::string, TokenType> Scanner::keywords = {
-    {"and", TokenType::AND},
-    {"class", TokenType::CLASS},
-    {"else", TokenType::ELSE},
-    {"false", TokenType::FALSE},
-    {"fun", TokenType::FUN},
-    {"for", TokenType::FOR},
-    {"if", TokenType::IF},
-    {"nil", TokenType::NIL},
-    {"or", TokenType::OR},
-    {"print", TokenType::PRINT},
-    {"return", TokenType::RETURN},
-    {"super", TokenType::SUPER},
-    {"this", TokenType::THIS},
-    {"true", TokenType::TRUE},
-    {"var", TokenType::VAR},
-    {"while", TokenType::WHILE},
+    {"and", AND},
+    {"class", CLASS},
+    {"else", ELSE},
+    {"false", FALSE},
+    {"fun", FUN},
+    {"for", FOR},
+    {"if", IF},
+    {"nil", NIL},
+    {"or", OR},
+    {"print", PRINT},
+    {"return", RETURN},
+    {"super", SUPER},
+    {"this", THIS},
+    {"true", TRUE},
+    {"var", VAR},
+    {"while", WHILE},
 };
 
 Scanner::Scanner(const std::string &source) : source(source) {}
@@ -164,7 +163,7 @@ void Scanner::identifier() {
     if (keywords.count(text) > 0) {
         type = keywords[text];
     } else {
-        type = TokenType::IDENTIFIER;
+        type = IDENTIFIER;
     }
 
     addToken(type);
@@ -206,16 +205,16 @@ char Scanner::peekNext() {
     return source[current + 1];
 }
 
-bool isAlpha(char c) {
+bool Scanner::isAlpha(char c) {
     return (c >= 'a' && c <= 'z') ||
            (c >= 'A' && c <= 'Z') || 
             c == '_';
 }
 
-bool isDigit(char c) {
+bool Scanner::isDigit(char c) {
     return c >= '0' && c <= '9';
 }
 
-bool isAlphaNumeric(char c) {
+bool Scanner::isAlphaNumeric(char c) {
     return isAlpha(c) || isDigit(c);
 }

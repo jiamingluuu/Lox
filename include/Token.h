@@ -1,6 +1,7 @@
-#ifndef __TOKENTYPE_H
-#define __TOKENTYPE_H
+#ifndef __TOKEN_H
+#define __TOKEN_H
 
+#include <any>
 #include <string>
 
 enum TokenType {
@@ -22,6 +23,17 @@ enum TokenType {
     END_OF_FILE
 };
 
-inline std::string tokenTypeToString(TokenType type);
+struct Token {
+public:
+    Token(TokenType type, std::string lexeme, std::any literal, int line);
+    std::string tokenTypeToString(TokenType type);
+    friend std::ostream& operator<<(std::ostream& os, const Token& token);
 
-#endif /* __TOKENTYPE_H */ 
+private:
+    TokenType type;
+    std::string lexeme;
+    std::any literal;
+    int line;
+};
+
+#endif

@@ -1,12 +1,26 @@
 #include <iostream>
 #include <fstream>
 
-#include "Lox.h"
-#include "Scanner.h"
-#include "Token.h"
-#include "TokenType.h"
+#include "../include/Lox.h"
+#include "../include/Scanner.h"
+#include "../include/Token.h"
 
-int Lox::runFile(const std::string& path) {
+bool Lox::hadError = false;
+int main(int argc, char *argv[]) {
+    
+    if (argc > 2) {
+        std::cout << "Usage: lox [script]\n";
+        exit(64);
+    } else if (argc == 2) {
+        Lox::runFile(argv[1]);
+    } else {
+        Lox::runPrompt();
+    }
+
+    return 0;
+}
+
+void Lox::runFile(const std::string& path) {
     std::ifstream file(path);
     std::string line;
     std::string source;
@@ -17,23 +31,23 @@ int Lox::runFile(const std::string& path) {
     
     run(source);
 
-    if (Lox::hadError) {
+    if (hadError) {
         exit(1);
     }
 }
 
-int Lox::runPrompt() {
+void Lox::runPrompt() {
     while (true) {
         std::cout << "> ";
         std::string line;
         std::getline(std::cin, line);
         if (line.length() == 0) { break; }
         run(line);
-        Lox::hadError = false;
+        hadError = false;
     }
 }
 
-int Lox::run(const std::string &source) {
+void Lox::run(const std::string &source) {
     Scanner scanner{source};
     std::vector<Token> tokens = scanner.scanTokens();
 
@@ -42,11 +56,11 @@ int Lox::run(const std::string &source) {
     }
 }
 
-void error(int line, const std::string& message) {
-    Lox::report(line, "", message);
+void Lox::error(int line, const std::string& message) {
+    report(line, "", message);
 }
 
 void Lox::report(int line, const std::string& where, const std::string& message) {
     std::cout << "[line " << line << "] Error" << where << ": " << message << "\n";
-    Lox::hadError = true;
+    hadError = true;
 }

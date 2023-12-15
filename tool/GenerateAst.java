@@ -13,7 +13,7 @@ public class GenerateAst {
         }
         String outputDir = args[0];
         defineAst(outputDir, "Expr", Arrays.asList(
-        "Binary   : Expr left, Token operator, Expr right",
+            "Binary   : Expr left, Token operator, Expr right",
             "Grouping : Expr expression",
             "Literal  : Object value",
             "Unary    : Token operator, Expr right"
@@ -33,6 +33,8 @@ public class GenerateAst {
         writer.println();
         writer.println("abstract class " + baseName + " {");
         
+        defineVisitor(writer, baseName, types);
+        
         for (String type : types) {
             String className = type.split(":")[0].trim();
             String fields = type.split(":")[1].trim();
@@ -41,6 +43,22 @@ public class GenerateAst {
 
         writer.println("}");
         writer.close();
+    }
+    
+    private static void defineVisitor (
+        PrintWriter writer, String baseName, List<String> types) {
+        writer.println("  interface Visitor<R> {");
+
+        for (String type : types) {
+            String typeName = type.split(":")[0].trim();
+            writer.println("    R visit" + typeName + baseName + "(" + 
+                typeName + " " + baseName.toLowerCase() + ");");
+        }
+        
+        writer.println();
+        writer.println("  abstract <R> R accept(Visitor<R> visitor);");
+
+        writer.println("  }");
     }
     
     private static void defineType(
@@ -56,8 +74,22 @@ public class GenerateAst {
         String[] fields = fieldList.split(", ");
         for (String field : fields) {
             String name = field.split(" ")[1];
-            writer.println("    this." + name + " = " + ";");
+            writer.println("      this." + name + " = " + ";");
         }
 
+        writer.println("    }");
+        
+        writer.println();
+        writer.println("    @Override");
+        writer.println("    <R> R accept(Visitor<R> visitor) {");
+        writer.println("     return visitor.visit" + 
+        className + baseName + "(this);");
+        writer.println("    }");
+        
+        writer.println();
+        for (String field : fields) {
+            writer.println("    final " + field + ";");
+        }
+        writer.println("  }");
     }
 }
