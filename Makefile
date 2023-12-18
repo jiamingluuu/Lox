@@ -1,5 +1,5 @@
-C_FLAGS = -g -Wall -Werror -std=c++17
 CXX = g++
+C_FLAGS = -g -Wall -Werror -std=c++17
 RM = rm
 
 OBJ_PATH = obj/
