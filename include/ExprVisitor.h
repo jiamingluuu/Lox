@@ -1,30 +1,28 @@
 #ifndef __VISITOR_H
 #define __VISITOR_H
 
-#include <memory>
+#include <any>
 
-class AssignExpr;
 class BinaryExpr;
-class CallExpr;
 class GroupingExpr;
-class LogicalExpr;
 class LiteralExpr;
 class UnaryExpr;
-class VarExpr;
 
-template<typename R>
+template<typename T>
 class ExprVisitor {
 public:
     ExprVisitor() = default;
 
-    virtual R visitAssignExpr(const AssignExpr& expr) = 0;
-    virtual R visitBinaryExpr(const BinaryExpr& expr) = 0;
-    virtual R visitCallExpr(const CallExpr& expr) = 0;
-    virtual R visitGroupingExpr(const GroupingExpr& expr) = 0;
-    virtual R visitLogicalExpr(const LogicalExpr& expr) = 0;
-    virtual R visitLiteralExpr(const LiteralExpr& expr) = 0;
-    virtual R visitUnaryExpr(const UnaryExpr& expr) = 0;
-    virtual R visitVarExpr(const VarExpr& expr) = 0;
+    virtual T visit(const BinaryExpr& expr) = 0;
+    virtual T visit(const GroupingExpr& expr) = 0;
+    virtual T visit(const LiteralExpr& expr) = 0;
+    virtual T visit(const UnaryExpr& expr) = 0;
+};
+
+class Expr {
+public:
+    virtual ~Expr() = default;
+    virtual std::any accept(ExprVisitor<std::any> &visitor) = 0;
 };
 
 #endif /* __VISITOR_H */

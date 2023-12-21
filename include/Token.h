@@ -23,13 +23,11 @@ enum TokenType {
     END_OF_FILE
 };
 
-struct Token {
+class Token {
 public:
     Token(TokenType type, std::string lexeme, std::any literal, int line);
     std::string tokenTypeToString(TokenType type);
     friend std::ostream& operator<<(std::ostream& os, const Token& token);
-
-private:
     TokenType type;
     std::string lexeme;
     std::any literal;

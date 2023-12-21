@@ -5,10 +5,10 @@ RM = rm
 OBJ_PATH = obj/
 SRC_PATH = src/
 
-OBJ1 = Lox.o Scanner.o Token.o
+OBJ1 = Lox.o Scanner.o Token.o Parser.o
 OBJ = $(patsubst %,$(OBJ_PATH)%,$(OBJ1))
 
-TARGET = main
+TARGET = lox
 
 $(OBJ_PATH)%.o: $(SRC_PATH)%.cpp
 	@echo [CC] $<
