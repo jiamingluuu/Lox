@@ -7,7 +7,7 @@
 
 Parser::Parser (std::vector<Token> tokens) : tokens(tokens) {}
 
-std::unique_ptr<Expr> Parser::parse() {
+std::shared_ptr<Expr> Parser::parse() {
     try {
         return expression();
     } catch (ParserError error) {
@@ -15,81 +15,93 @@ std::unique_ptr<Expr> Parser::parse() {
     }
 }
 
-std::unique_ptr<Expr> Parser::expression() {
+std::shared_ptr<Expr> Parser::expression() {
     return equality();
 }
 
-std::unique_ptr<Expr> Parser::equality() {
+std::shared_ptr<Expr> Parser::equality() {
     /*
      * equality       → comparison ( ( "!=" | "==" ) comparison )* ;
      */
 
-    std::unique_ptr<Expr> expr = comparison();
+    std::shared_ptr<Expr> expr = comparison();
 
     while(match({BANG_EQUAL, EQUAL_EQUAL})) {
         Token op = previous();
-        std::unique_ptr<Expr> right = comparison();
-        expr = std::make_unique<BinaryExpr>(std::move(expr), op, std::move(right));
+        std::shared_ptr<Expr> right = comparison();
+        expr = std::make_shared<BinaryExpr>(expr, std::move(op), right);
     }
     
     return expr;
 }
 
-std::unique_ptr<Expr> Parser::comparison() {
+std::shared_ptr<Expr> Parser::comparison() {
     /* 
      * comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
      */
 
-    std::unique_ptr<Expr> expr = term();
+    std::shared_ptr<Expr> expr = term();
 
     while (match({GREATER, GREATER_EQUAL, LESS, LESS_EQUAL})) {
         Token op = previous();
-        std::unique_ptr<Expr> right = term();
-        expr = std::make_unique<BinaryExpr>(std::move(expr), op, std::move(right));
+        std::shared_ptr<Expr> right = term();
+        expr = std::make_shared<BinaryExpr>(expr, std::move(op), right);
     }
 
     return expr;
 }
 
-std::unique_ptr<Expr> Parser::term() {
-    std::unique_ptr<Expr> expr = factor();
+std::shared_ptr<Expr> Parser::term() {
+    std::shared_ptr<Expr> expr = factor();
 
     while (match({MINUS, PLUS})) {
         Token op = previous();
-        std::unique_ptr<Expr> right = term();
-        expr = std::make_unique<BinaryExpr>(std::move(expr), op, std::move(right));
+        std::shared_ptr<Expr> right = term();
+        expr = std::make_shared<BinaryExpr>(std::move(expr), op, std::move(right));
     }
 
     return expr;
 }
 
-std::unique_ptr<Expr> Parser::unary() {
+std::shared_ptr<Expr> Parser::factor() {
+    std::shared_ptr<Expr> expr = unary();
+
+    while (match({SLASH, STAR})) {
+        Token op = previous();
+        std::shared_ptr<Expr> right = unary();
+        expr = std::make_shared<BinaryExpr>(std::move(expr), op, std::move(right));
+    }
+
+    return expr;
+}
+
+std::shared_ptr<Expr> Parser::unary() {
     /*
      * unary    → ( "!" | "-" ) unary
      *          | primary ;
      */
     if (match({BANG, MINUS})) {
         Token op = previous();
-        std::unique_ptr<Expr> right = unary();
-        return std::make_unique<UnaryExpr>(op, std::move(right));
+        std::shared_ptr<Expr> right = unary();
+        return std::make_shared<UnaryExpr>(op, std::move(right));
     }
 
-    return call();
+    return primary();
 }
 
-std::unique_ptr<Expr> Parser::primary() {
-    if (match({FALSE})) return std::make_unique<LiteralExpr>(false);
-    if (match({TRUE})) return std::make_unique<LiteralExpr>(true);
-    if (match({NIL})) return std::make_unique<LiteralExpr>(nullptr);
+std::shared_ptr<Expr> Parser::primary() {
+    if (match({FALSE})) return std::make_shared<LiteralExpr>(false);
+    if (match({TRUE})) return std::make_shared<LiteralExpr>(true);
+    if (match({NIL})) return std::make_shared<LiteralExpr>(nullptr);
 
     if (match({NUMBER, STRING})) {
-        return std::make_unique<LiteralExpr>(previous().literal);
+        return std::make_shared<LiteralExpr>(previous().literal);
     }
 
     if (match({LEFT_PAREN})) {
-        std::unique_ptr<Expr> expr = expression();
+        std::shared_ptr<Expr> expr = expression();
         consume(RIGHT_PAREN, "Expect ')' after expression");
-        return std::make_unique<GroupingExpr>(std::move(expr));
+        return std::make_shared<GroupingExpr>(std::move(expr));
     }
 
     throw error(peek(), "Expect expression.");
@@ -126,27 +138,27 @@ bool Parser::isAtEnd() {
     return peek().type == END_OF_FILE;
 }
 
-void Parser::synchronize() {
-    advance();
+// void Parser::synchronize() {
+//     advance();
 
-    while (!isAtEnd()) {
-        if (previous().type == SEMICOLON) return;
+//     while (!isAtEnd()) {
+//         if (previous().type == SEMICOLON) return;
 
-        switch (peek().type) {
-            case CLASS:
-            case FUN:
-            case VAR:
-            case FOR:
-            case IF:
-            case WHILE:
-            case PRINT:
-            case RETURN:
-                return;
-        }
+//         switch (peek().type) {
+//             case CLASS:
+//             case FUN:
+//             case VAR:
+//             case FOR:
+//             case IF:
+//             case WHILE:
+//             case PRINT:
+//             case RETURN:
+//                 return;
+//         }
 
-        advance();
-    }
-}
+//         advance();
+//     }
+// }
 
 Token Parser::peek() {
     return tokens[current];

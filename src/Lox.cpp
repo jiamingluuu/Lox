@@ -7,6 +7,9 @@
 #include "../include/Token.h"
 
 bool Lox::hadError = false;
+bool Lox::hadRuntimeError = false;
+Interpreter interpreter{};
+
 int main(int argc, char *argv[]) {
     
     if (argc > 2) {
@@ -35,6 +38,9 @@ void Lox::runFile(const std::string& path) {
     if (hadError) {
         exit(1);
     }
+    if (hadRuntimeError) {
+        exit(70);
+    }
 }
 
 void Lox::runPrompt() {
@@ -42,7 +48,9 @@ void Lox::runPrompt() {
         std::cout << "> ";
         std::string line;
         std::getline(std::cin, line);
-        if (line.length() == 0) { break; }
+        if (line.length() == 0) { 
+            break; 
+        }
         run(line);
         hadError = false;
     }
@@ -53,11 +61,14 @@ void Lox::run(const std::string &source) {
     std::vector<Token> tokens = scanner.scanTokens();
 
     Parser parser{tokens};
-    std::unique_ptr<Expr> expression = parser.parse();
+    std::shared_ptr<Expr> expr = parser.parse();
+    for (auto token : tokens) std::cout << token << "\n";
 
     if (hadError) { 
         return; 
     }
+
+    interpreter.interprete(expr);
 }
 
 void Lox::error(int line, const std::string& message) {
@@ -75,4 +86,9 @@ void Lox::error(Token token, const std::string& message) {
     } else {
         report(token.line, "at '" + token.lexeme + "'", message);
     }
+}
+
+void Lox::runtimeError(RuntimeError error) {
+    std::cerr << error.what() << "\n[line " << error.token.line << "]";
+    hadRuntimeError = true;
 }

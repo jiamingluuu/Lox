@@ -9,7 +9,7 @@
 class Parser {
 public:
     Parser(std::vector<Token> tokens);
-    std::unique_ptr<Expr> parse();
+    std::shared_ptr<Expr> parse();
 
 private:
     class ParserError : public std::runtime_error {
@@ -21,14 +21,14 @@ private:
     std::vector<Token> tokens;
     int current = 0;
 
-    std::unique_ptr<Expr> expression();
-    std::unique_ptr<Expr> equality();
-    std::unique_ptr<Expr> comparison();
-    std::unique_ptr<Expr> term();
-    std::unique_ptr<Expr> factor();
-    std::unique_ptr<Expr> unary();
-    std::unique_ptr<Expr> call();
-    std::unique_ptr<Expr> primary();
+    std::shared_ptr<Expr> expression();
+    std::shared_ptr<Expr> equality();
+    std::shared_ptr<Expr> comparison();
+    std::shared_ptr<Expr> term();
+    std::shared_ptr<Expr> factor();
+    std::shared_ptr<Expr> unary();
+    std::shared_ptr<Expr> primary();
+
     void synchronize();
 
     bool match(std::initializer_list<TokenType> types);

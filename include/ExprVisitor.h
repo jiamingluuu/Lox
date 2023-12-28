@@ -13,16 +13,10 @@ class ExprVisitor {
 public:
     ExprVisitor() = default;
 
-    virtual T visit(const BinaryExpr& expr) = 0;
-    virtual T visit(const GroupingExpr& expr) = 0;
-    virtual T visit(const LiteralExpr& expr) = 0;
-    virtual T visit(const UnaryExpr& expr) = 0;
-};
-
-class Expr {
-public:
-    virtual ~Expr() = default;
-    virtual std::any accept(ExprVisitor<std::any> &visitor) = 0;
+    virtual T visit(std::shared_ptr<BinaryExpr> expr) = 0;
+    virtual T visit(std::shared_ptr<GroupingExpr> expr) = 0;
+    virtual T visit(std::shared_ptr<LiteralExpr> expr) = 0;
+    virtual T visit(std::shared_ptr<UnaryExpr> expr) = 0;
 };
 
 #endif /* __VISITOR_H */

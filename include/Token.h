@@ -26,8 +26,9 @@ enum TokenType {
 class Token {
 public:
     Token(TokenType type, std::string lexeme, std::any literal, int line);
-    std::string tokenTypeToString(TokenType type);
     friend std::ostream& operator<<(std::ostream& os, const Token& token);
+
+    std::string tokenTypeToString(TokenType type);
     TokenType type;
     std::string lexeme;
     std::any literal;

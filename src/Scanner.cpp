@@ -120,7 +120,7 @@ void Scanner::string() {
     advance();
     
     // add the value inside the "" char
-    std::string value = source.substr(start + 1, current - 1);
+    std::string value = source.substr(start + 1, current - 2 - start);
     addToken(TokenType::STRING, value);
 }
 
