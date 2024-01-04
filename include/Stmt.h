@@ -7,6 +7,7 @@
 #include "Expr.h"
 
 class BlockStmt;
+class IfStmt;
 class ExpressionStmt;
 class PrintStmt;
 class VarStmt;
@@ -18,6 +19,7 @@ public:
 
     virtual T visit(std::shared_ptr<BlockStmt> stmt) = 0;
     virtual T visit(std::shared_ptr<ExpressionStmt> stmt) = 0;
+    virtual T visit(std::shared_ptr<IfStmt> stmt) = 0; 
     virtual T visit(std::shared_ptr<PrintStmt> stmt) = 0;
     virtual T visit(std::shared_ptr<VarStmt> stmt) = 0;
 };
@@ -53,6 +55,25 @@ public:
 
     std::any accept(StmtVisitor<void> &visitor) override { 
         visitor.visit(std::make_shared<ExpressionStmt>(*this)); 
+        return {};
+    }
+};
+
+class IfStmt : public Stmt {
+public:
+    std::shared_ptr<Expr> condition;
+    std::shared_ptr<Stmt> thenBranch;
+    std::shared_ptr<Stmt> elseBranch;
+
+    IfStmt(std::shared_ptr<Expr> condition, 
+           std::shared_ptr<Stmt> thenBranch,
+           std::shared_ptr<Stmt> elseBranch)
+        : condition(std::move(condition)), 
+          thenBranch(std::move(thenBranch)),
+          elseBranch(std::move(elseBranch)) {}
+
+    std::any accept(StmtVisitor<void> &visitor) override { 
+        visitor.visit(std::make_shared<IfStmt>(*this)); 
         return {};
     }
 };
