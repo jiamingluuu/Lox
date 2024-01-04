@@ -19,7 +19,7 @@ public:
 private:
     std::string source;
     std::vector<Token> tokens;
-    static std::map<std::string, TokenType> keywords;
+    const static std::map<std::string, TokenType> keywords;
     int start = 0;
     int current = 0;
     int line = 1;

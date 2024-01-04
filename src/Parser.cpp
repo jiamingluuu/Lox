@@ -7,16 +7,111 @@
 
 Parser::Parser (std::vector<Token> tokens) : tokens(tokens) {}
 
-std::shared_ptr<Expr> Parser::parse() {
+std::vector<std::shared_ptr<Stmt>> Parser::parse() {
+    std::vector<std::shared_ptr<Stmt>> statements;
+    while(!isAtEnd()) {
+        statements.push_back(declaration());
+    }
+
+    return statements;
+}
+
+std::shared_ptr<Expr> Parser::expression() {
+    return assignment();
+}
+
+std::shared_ptr<Stmt> Parser::statement() {
+    /*
+     * statement      → exprStmt
+     *                | ifStmt
+     *                | printStmt
+     *                | block ;
+     */
+    // if (match({IF)})) return ifStatement();
+    if (match({PRINT})) return printStatement();
+    if (match({LEFT_BRACE})) return std::make_shared<BlockStmt>(block());
+
+    return expressionStatement();
+}
+
+std::shared_ptr<Stmt> Parser::declaration() {
+    /*
+     * declaration    → varDecl
+     *                | statement ;
+     */
     try {
-        return expression();
+        if (match({VAR})) return varDeclaration();
+
+        return statement();
     } catch (ParserError error) {
+        synchronize();
         return nullptr;
     }
 }
 
-std::shared_ptr<Expr> Parser::expression() {
-    return equality();
+std::shared_ptr<Stmt> Parser::printStatement() {
+    /*
+     * printStmt      → "print" expression ";" ;
+     */
+    std::shared_ptr<Expr> value = expression();
+    consume(SEMICOLON, "Expect ';' after value.");
+    return std::make_shared<PrintStmt>(value);
+}
+
+std::shared_ptr<Stmt> Parser::varDeclaration() {
+    /*
+     * varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
+     */
+    Token name = consume(IDENTIFIER, "Expect variable name.");
+
+    std::shared_ptr<Expr> initializer = nullptr;
+    if (match({EQUAL})) {
+        initializer = expression();
+    }
+
+    consume(SEMICOLON, "Expect ';' after variable declaration.");
+    return std::make_shared<VarStmt>(std::move(name), initializer);
+}
+
+std::shared_ptr<Stmt> Parser::expressionStatement() {
+    /*
+     * exprStmt       → expression ";" ;
+     */
+    std::shared_ptr<Expr> expr = expression();
+    consume(SEMICOLON, "Expect ';' after expression.");
+    return std::make_shared<ExpressionStmt>(expr);
+}
+
+std::vector<std::shared_ptr<Stmt>> Parser::block() {
+    /*
+     * block          → "{" declaration* "}"
+     */
+    std::vector<std::shared_ptr<Stmt>> statements{};
+
+    while (!check(RIGHT_BRACE) && !isAtEnd()) {
+        statements.push_back(declaration());
+    }
+
+    consume(RIGHT_BRACE, "Expect '}' after block.");
+    return statements;
+}
+
+std::shared_ptr<Expr> Parser::assignment() {
+    std::shared_ptr<Expr> expr = equality();
+
+    if (match({EQUAL})) {
+        Token equals = previous();
+        std::shared_ptr<Expr> value = assignment();
+
+        if (VariableExpr* e = dynamic_cast<VariableExpr*>(expr.get())) {
+            Token name = e->name;
+            return std::make_shared<AssignExpr>(std::move(name), value);
+        }
+
+        error(std::move(equals), "Invalid assignment target.");
+    }
+
+    return expr;
 }
 
 std::shared_ptr<Expr> Parser::equality() {
@@ -90,12 +185,22 @@ std::shared_ptr<Expr> Parser::unary() {
 }
 
 std::shared_ptr<Expr> Parser::primary() {
+    /*
+     * primary        → "true" | "false" | "nil"
+     *                | NUMBER | STRING
+     *                | "(" expression ")"
+     *                | IDENTIFIER ;
+     */
     if (match({FALSE})) return std::make_shared<LiteralExpr>(false);
     if (match({TRUE})) return std::make_shared<LiteralExpr>(true);
     if (match({NIL})) return std::make_shared<LiteralExpr>(nullptr);
 
     if (match({NUMBER, STRING})) {
         return std::make_shared<LiteralExpr>(previous().literal);
+    }
+
+    if (match({IDENTIFIER})) {
+        return std::make_shared<VariableExpr>(previous());
     }
 
     if (match({LEFT_PAREN})) {
@@ -138,27 +243,27 @@ bool Parser::isAtEnd() {
     return peek().type == END_OF_FILE;
 }
 
-// void Parser::synchronize() {
-//     advance();
+void Parser::synchronize() {
+    advance();
 
-//     while (!isAtEnd()) {
-//         if (previous().type == SEMICOLON) return;
+    while (!isAtEnd()) {
+        if (previous().type == SEMICOLON) return;
 
-//         switch (peek().type) {
-//             case CLASS:
-//             case FUN:
-//             case VAR:
-//             case FOR:
-//             case IF:
-//             case WHILE:
-//             case PRINT:
-//             case RETURN:
-//                 return;
-//         }
+        // switch (peek().type) {
+        //     case CLASS:
+        //     case FUN:
+        //     case VAR:
+        //     case FOR:
+        //     case IF:
+        //     case WHILE:
+        //     case PRINT:
+        //     case RETURN:
+        //         return;
+        // }
 
-//         advance();
-//     }
-// }
+        advance();
+    }
+}
 
 Token Parser::peek() {
     return tokens[current];

@@ -29,9 +29,11 @@ void Lox::runFile(const std::string& path) {
     std::string line;
     std::string source;
 
-    while (std::getline(std::cin, line)) {
+    while (std::getline(file, line)) {
         source += line + "\n";        
     }    
+
+    file.close();
     
     run(source);
 
@@ -61,14 +63,15 @@ void Lox::run(const std::string &source) {
     std::vector<Token> tokens = scanner.scanTokens();
 
     Parser parser{tokens};
-    std::shared_ptr<Expr> expr = parser.parse();
     for (auto token : tokens) std::cout << token << "\n";
+
+    std::vector<std::shared_ptr<Stmt>> statements = parser.parse();
 
     if (hadError) { 
         return; 
     }
 
-    interpreter.interprete(expr);
+    interpreter.interprete(statements);
 }
 
 void Lox::error(int line, const std::string& message) {

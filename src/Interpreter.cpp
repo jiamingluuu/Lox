@@ -1,14 +1,17 @@
 #include <iostream>
-#include <any>
 
+#include "../include/Environment.h"
 #include "../include/Interpreter.h"
 #include "../include/Lox.h"
 #include "../include/RuntimeError.h"
 
-void Interpreter::interprete(std::shared_ptr<Expr> expr) {
+std::shared_ptr<Environment> Interpreter::environment{new Environment};
+
+void Interpreter::interprete(std::vector<std::shared_ptr<Stmt>> statements) {
     try {
-        std::any value = evaluate(expr);
-        std::cout << stringify(value) << "\n";
+        for (std::shared_ptr<Stmt> statement : statements) {
+            execute(statement);
+        }
     } catch (RuntimeError error) {
         Lox::runtimeError(error);
     }
@@ -16,6 +19,57 @@ void Interpreter::interprete(std::shared_ptr<Expr> expr) {
 
 std::any Interpreter::evaluate(std::shared_ptr<Expr> expr) {
     return expr->accept(*this);
+}
+
+void Interpreter::execute(std::shared_ptr<Stmt> stmt) {
+    stmt->accept(*this);
+}
+
+void Interpreter::executeBlock(
+        std::vector<std::shared_ptr<Stmt>> statements,
+        std::shared_ptr<Environment> environment) {
+
+    std::shared_ptr<Environment> previous = this->environment;
+    try {
+        this-> environment = environment;
+
+        for (std::shared_ptr<Stmt> statement : statements) {
+            execute(statement);
+        }
+    } catch(...) {
+        this->environment = previous;
+        throw;
+    }
+
+    this->environment = previous;
+}
+
+void Interpreter::visit(std::shared_ptr<BlockStmt> stmt) {
+    executeBlock(stmt->statements, std::make_shared<Environment>(environment));
+}
+
+void Interpreter::visit(std::shared_ptr<ExpressionStmt> stmt) {
+    evaluate(stmt->expr);
+}
+
+void Interpreter::visit(std::shared_ptr<PrintStmt> stmt) {
+    std::any value = evaluate(stmt->expr);
+    std::cout << stringify(value) << "\n";
+}
+
+void Interpreter::visit(std::shared_ptr<VarStmt> stmt) {
+    std::any value = nullptr;
+    if (stmt->initializer != nullptr) {
+        value = evaluate(stmt->initializer);
+    }
+
+    environment->define(stmt->name.lexeme, std::move(value));
+}
+
+std::any Interpreter::visit(std::shared_ptr<AssignExpr> expr) {
+    std::any value = evaluate(expr->value);
+    environment->assign(expr->name, value);
+    return value;
 }
 
 std::any Interpreter::visit(std::shared_ptr<BinaryExpr> expr) {
@@ -42,7 +96,8 @@ std::any Interpreter::visit(std::shared_ptr<BinaryExpr> expr) {
             if ((left.type() == typeid(double)) && 
                     (right.type() == typeid(double))) {
 
-                return std::any_cast<double>(left) + std::any_cast<double>(right); 
+                return std::any_cast<double>(left) 
+                    + std::any_cast<double>(right); 
             }
 
             if ((left.type() == typeid(std::string)) && 
@@ -51,12 +106,6 @@ std::any Interpreter::visit(std::shared_ptr<BinaryExpr> expr) {
                 return std::any_cast<std::string>(left) 
                     + std::any_cast<std::string>(right); 
             }
-
-            // if ((left.type() == typeid(std::string)) || 
-            //         (right.type() == typeid(std::string))) {
-            //     return std::any_cast<std::string>(left) 
-            //         + std::any_cast<std::string>(right); 
-            // }
 
             throw RuntimeError(expr->op, 
                     "Operands must be two numbers or two strings.");
@@ -101,6 +150,9 @@ std::any Interpreter::visit(std::shared_ptr<UnaryExpr> expr) {
     }
 }
 
+std::any Interpreter::visit(std::shared_ptr<VariableExpr> expr) {
+    return environment->get(expr->name);
+}
 
 void Interpreter::checkNumberOperand(Token op, const std::any& operand) {
     if (operand.type() == typeid(double)) return;

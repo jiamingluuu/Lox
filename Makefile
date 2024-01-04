@@ -10,7 +10,8 @@ OBJ1 = Lox.o \
 	   Token.o \
 	   Parser.o \
 	   Interpreter.o \
-	   RuntimeError.o
+	   RuntimeError.o \
+	   Environment.o
 
 OBJ = $(patsubst %,$(OBJ_PATH)%,$(OBJ1))
 
@@ -27,4 +28,4 @@ $(TARGET): $(OBJ)
 .PHONY: clean
 clean: 
 	${RM} -rfv ${OBJ_PATH}*
-	${RM} main
+	${RM} ${TARGET}

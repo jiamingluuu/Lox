@@ -5,7 +5,7 @@
 #include "../include/Token.h"
 #include "../include/Lox.h"
 
-std::map<std::string, TokenType> Scanner::keywords = {
+const std::map<std::string, TokenType> Scanner::keywords = {
     {"and", AND},
     {"class", CLASS},
     {"else", ELSE},
@@ -157,13 +157,14 @@ void Scanner::number() {
 void Scanner::identifier() {
     while (isAlphaNumeric(peek())) advance();
     
-    std::string text = source.substr(start, current);
-    TokenType type;
+    std::string text = source.substr(start, current - start);
 
-    if (keywords.count(text) > 0) {
-        type = keywords[text];
-    } else {
+    TokenType type;
+    auto match = keywords.find(text);
+    if (match == keywords.end()) {
         type = IDENTIFIER;
+    } else {
+        type = match->second;
     }
 
     addToken(type);
