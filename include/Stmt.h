@@ -7,9 +7,12 @@
 #include "Expr.h"
 
 class BlockStmt;
-class IfStmt;
 class ExpressionStmt;
+class FunctionStmt;
+class IfStmt;
 class PrintStmt;
+class ReturnStmt;
+class WhileStmt;
 class VarStmt;
 
 template<typename T>
@@ -19,8 +22,11 @@ public:
 
     virtual T visit(std::shared_ptr<BlockStmt> stmt) = 0;
     virtual T visit(std::shared_ptr<ExpressionStmt> stmt) = 0;
+    virtual T visit(std::shared_ptr<FunctionStmt> stmt) = 0;
     virtual T visit(std::shared_ptr<IfStmt> stmt) = 0; 
     virtual T visit(std::shared_ptr<PrintStmt> stmt) = 0;
+    virtual T visit(std::shared_ptr<ReturnStmt> stmt) = 0;
+    virtual T visit(std::shared_ptr<WhileStmt> stmt) = 0;
     virtual T visit(std::shared_ptr<VarStmt> stmt) = 0;
 };
 
@@ -49,12 +55,30 @@ public:
 
     ExpressionStmt(std::shared_ptr<Expr> expr)
         : expr(std::move(expr))
-    {
-        assert(expr != nullptr);
-    }
+    {}
 
     std::any accept(StmtVisitor<void> &visitor) override { 
         visitor.visit(std::make_shared<ExpressionStmt>(*this)); 
+        return {};
+    }
+};
+
+class FunctionStmt : public Stmt {
+public:
+    Token name;
+    std::vector<Token> parameters;
+    std::vector<std::shared_ptr<Stmt>> body;
+
+    FunctionStmt(
+        Token name, 
+        std::vector<Token> parameters, 
+        std::vector<std::shared_ptr<Stmt>> body)
+        : name(std::move(name)),
+          parameters(std::move(parameters)),
+          body(std::move(body)) {}
+
+    std::any accept(StmtVisitor<void> &visitor) override { 
+        visitor.visit(std::make_shared<FunctionStmt>(*this)); 
         return {};
     }
 };
@@ -87,6 +111,34 @@ public:
 
     std::any accept(StmtVisitor<void> &visitor) override { 
         visitor.visit(std::make_shared<PrintStmt>(*this)); 
+        return {};
+    }
+};
+
+class ReturnStmt : public Stmt {
+public:
+    Token keyword;
+    std::shared_ptr<Expr> value;
+
+    ReturnStmt(Token keyword, std::shared_ptr<Expr> value) 
+    : keyword(std::move(keyword)), value(std::move(value)) {}
+
+    std::any accept(StmtVisitor<void> &visitor) override { 
+        visitor.visit(std::make_shared<ReturnStmt>(*this)); 
+        return {};
+    }
+};
+
+class WhileStmt : public Stmt {
+public: 
+    std::shared_ptr<Expr> condition;
+    std::shared_ptr<Stmt> body;
+
+    WhileStmt(std::shared_ptr<Expr> condition, std::shared_ptr<Stmt> body)
+        : condition(std::move(condition)), body(std::move(body)) {}
+
+    std::any accept(StmtVisitor<void> &visitor) override { 
+        visitor.visit(std::make_shared<WhileStmt>(*this)); 
         return {};
     }
 };

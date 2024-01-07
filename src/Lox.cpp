@@ -11,7 +11,6 @@ bool Lox::hadRuntimeError = false;
 Interpreter interpreter{};
 
 int main(int argc, char *argv[]) {
-    
     if (argc > 2) {
         std::cout << "Usage: lox [script]\n";
         exit(64);

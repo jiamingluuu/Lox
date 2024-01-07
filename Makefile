@@ -11,21 +11,22 @@ OBJ1 = Lox.o \
 	   Parser.o \
 	   Interpreter.o \
 	   RuntimeError.o \
-	   Environment.o
+	   Environment.o \
+	   LoxFunction.o
 
 OBJ = $(patsubst %,$(OBJ_PATH)%,$(OBJ1))
 
 TARGET = clox
 
-$(OBJ_PATH)%.o: $(SRC_PATH)%.cpp
-	@echo [CC] $<
-	@$(CXX) $(C_FLAGS) -o $@ -c $<
-
 $(TARGET): $(OBJ)
 	@echo [INFO] Creating Binary Executable [$(TARGET)]
 	@$(CXX) -o $@ $^
 
+$(OBJ_PATH)%.o: $(SRC_PATH)%.cpp
+	@echo [CC] $<
+	@$(CXX) $(C_FLAGS) -o $@ -c $<
+
 .PHONY: clean
 clean: 
-	${RM} -rfv ${OBJ_PATH}*
-	${RM} ${TARGET}
+	$(RM) -rfv $(OBJ_PATH)*
+	$(RM) $(TARGET)

@@ -26,16 +26,25 @@ private:
     std::shared_ptr<Expr> expression();
     std::shared_ptr<Stmt> statement();
     std::shared_ptr<Stmt> declaration();
+    std::shared_ptr<Stmt> forStatement();
+    std::shared_ptr<Stmt> ifStatement();
+    std::shared_ptr<Stmt> whileStmt();
     std::shared_ptr<Stmt> printStatement();
+    std::shared_ptr<Stmt> returnStatement();
     std::shared_ptr<Stmt> varDeclaration();
     std::shared_ptr<Stmt> expressionStatement();
+    std::shared_ptr<FunctionStmt> function(std::string kind);
     std::vector<std::shared_ptr<Stmt>> block();
     std::shared_ptr<Expr> assignment();
+    std::shared_ptr<Expr> orExpr();
+    std::shared_ptr<Expr> andExpr();
     std::shared_ptr<Expr> equality();
     std::shared_ptr<Expr> comparison();
     std::shared_ptr<Expr> term();
     std::shared_ptr<Expr> factor();
     std::shared_ptr<Expr> unary();
+    std::shared_ptr<Expr> call();
+    std::shared_ptr<Expr> finishCall(std::shared_ptr<Expr> callee);
     std::shared_ptr<Expr> primary();
 
     void synchronize();
