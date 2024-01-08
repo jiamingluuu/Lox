@@ -24,9 +24,11 @@ int main(int argc, char *argv[]) {
 }
 
 void Lox::runFile(const std::string& path) {
-    std::ifstream file(path);
+    std::ifstream file;
     std::string line;
     std::string source;
+
+    file.open(path);
 
     while (std::getline(file, line)) {
         source += line + "\n";        
