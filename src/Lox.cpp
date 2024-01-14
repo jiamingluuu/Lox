@@ -3,6 +3,7 @@
 
 #include "../include/Lox.h"
 #include "../include/Parser.h"
+#include "../include/Resolver.h"
 #include "../include/Scanner.h"
 #include "../include/Token.h"
 
@@ -29,6 +30,11 @@ void Lox::runFile(const std::string& path) {
     std::string source;
 
     file.open(path);
+    if (!file) {
+        std::cerr << "Failed to open file " << path << ": "
+                      << std::strerror(errno) << "\n";
+        std::exit(74);
+    }
 
     while (std::getline(file, line)) {
         source += line + "\n";        
@@ -39,7 +45,7 @@ void Lox::runFile(const std::string& path) {
     run(source);
 
     if (hadError) {
-        exit(1);
+        exit(65);
     }
     if (hadRuntimeError) {
         exit(70);
@@ -64,15 +70,16 @@ void Lox::run(const std::string &source) {
     std::vector<Token> tokens = scanner.scanTokens();
 
     Parser parser{tokens};
-    for (auto token : tokens) std::cout << token << "\n";
-
     std::vector<std::shared_ptr<Stmt>> statements = parser.parse();
 
-    if (hadError) { 
-        return; 
-    }
+    if (hadError) return;
+    
+    Resolver resolver{interpreter};
+    resolver.resolve(statements);
+    
+    if (hadError) return;
 
-    interpreter.interprete(statements);
+    interpreter.interpret(statements);
 }
 
 void Lox::error(int line, const std::string& message) {

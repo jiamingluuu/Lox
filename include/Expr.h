@@ -18,8 +18,6 @@ class VariableExpr;
 template<typename T>
 class ExprVisitor {
 public:
-    virtual ~ExprVisitor() = default;
-
     virtual T visit(std::shared_ptr<AssignExpr> expr) = 0;
     virtual T visit(std::shared_ptr<BinaryExpr> expr) = 0;
     virtual T visit(std::shared_ptr<CallExpr> expr) = 0;
@@ -28,6 +26,7 @@ public:
     virtual T visit(std::shared_ptr<LogicalExpr> expr) = 0;
     virtual T visit(std::shared_ptr<UnaryExpr> expr) = 0;
     virtual T visit(std::shared_ptr<VariableExpr> expr) = 0;
+    virtual ~ExprVisitor() = default;
 };
 
 class Expr {

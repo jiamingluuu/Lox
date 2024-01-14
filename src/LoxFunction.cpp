@@ -14,11 +14,11 @@ int LoxFunction::arity() {
 }
 
 std::any LoxFunction::call(
-        Interpreter& interpreter, 
+        Interpreter &interpreter, 
         std::vector<std::any> arguments) {
     std::shared_ptr<Environment> environment = 
         std::make_shared<Environment>(closure);
-    for (int i = 0; i < declaration->parameters.size(); i++) {
+    for (int i = 0; i < declaration->parameters.size(); ++i) {
         environment->define(declaration->parameters[i].lexeme,
                             arguments[i]);
     }

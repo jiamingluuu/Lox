@@ -8,9 +8,10 @@
 #include "../include/LoxReturn.h"
 #include "../include/RuntimeError.h"
 
-void Interpreter::interprete(std::vector<std::shared_ptr<Stmt>> statements) {
+void Interpreter::interpret(
+        const std::vector<std::shared_ptr<Stmt>> &statements) {
     try {
-        for (std::shared_ptr<Stmt> statement : statements) {
+        for (const std::shared_ptr<Stmt> &statement : statements) {
             execute(statement);
         }
     } catch (RuntimeError error) {
@@ -27,14 +28,12 @@ void Interpreter::execute(std::shared_ptr<Stmt> stmt) {
 }
 
 void Interpreter::executeBlock(
-        std::vector<std::shared_ptr<Stmt>> statements,
+        const std::vector<std::shared_ptr<Stmt>> &statements,
         std::shared_ptr<Environment> environment) {
-
     std::shared_ptr<Environment> previous = this->environment;
     try {
-        this-> environment = environment;
-
-        for (std::shared_ptr<Stmt> statement : statements) {
+        this->environment = environment;
+        for (const std::shared_ptr<Stmt> &statement : statements) {
             execute(statement);
         }
     } catch(...) {
@@ -43,6 +42,10 @@ void Interpreter::executeBlock(
     }
 
     this->environment = previous;
+}
+
+void Interpreter::resolve(std::shared_ptr<Expr> expr, int depth) {
+    locals[expr] = depth;
 }
 
 void Interpreter::visit(std::shared_ptr<BlockStmt> stmt) {
@@ -96,7 +99,15 @@ void Interpreter::visit(std::shared_ptr<VarStmt> stmt) {
 
 std::any Interpreter::visit(std::shared_ptr<AssignExpr> expr) {
     std::any value = evaluate(expr->value);
-    environment->assign(expr->name, value);
+    
+    auto element = locals.find(expr);
+    if (element != locals.end()) {
+        int distance = element->second;
+        environment->assignAt(distance, expr->name, value);
+    } else {
+        globals->assign(expr->name, value);
+    }
+
     return value;
 }
 
@@ -159,8 +170,8 @@ std::any Interpreter::visit(std::shared_ptr<BinaryExpr> expr) {
 std::any Interpreter::visit(std::shared_ptr<CallExpr> expr) {
     std::any callee = evaluate(expr->callee);
 
-    std::vector<std::any>  arguments{};
-    for (std::shared_ptr<Expr> argument : expr->arguments) {
+    std::vector<std::any>  arguments;
+    for (const std::shared_ptr<Expr> &argument : expr->arguments) {
         arguments.push_back(evaluate(argument));
     }
 
@@ -214,28 +225,32 @@ std::any Interpreter::visit(std::shared_ptr<UnaryExpr> expr) {
 }
 
 std::any Interpreter::visit(std::shared_ptr<VariableExpr> expr) {
-    return environment->get(expr->name);
+    return lookUpVariable(expr->name, expr);
 }
 
-void Interpreter::checkNumberOperand(Token op, const std::any& operand) {
+void Interpreter::checkNumberOperand(
+        const Token &op, 
+        const std::any &operand) {
     if (operand.type() == typeid(double)) return;
     throw RuntimeError(op, "Operand must be a number.");
 }
 
-void Interpreter::checkNumberOperand(Token op, const std::any& left, 
-        const std::any& right) {
+void Interpreter::checkNumberOperand(
+        const Token &op, 
+        const std::any &left, 
+        const std::any &right) {
     if ((left.type() == typeid(double)) && (right.type() == typeid(double))) 
         return;
     throw RuntimeError(op, "Operands must be numbers.");
 }
 
-bool Interpreter::isTruthy(const std::any& object) {
+bool Interpreter::isTruthy(const std::any &object) {
     if (!object.has_value()) return false;
     if (object.type() == typeid(bool)) return std::any_cast<bool>(object);
     return true;
 }
 
-bool Interpreter::isEqual(const std::any& a, const std::any& b) {
+bool Interpreter::isEqual(const std::any &a, const std::any &b) {
     if (a.has_value() && b.has_value()) return true;
     if (a.has_value()) return false;
 
@@ -253,7 +268,23 @@ bool Interpreter::isEqual(const std::any& a, const std::any& b) {
     return false;
 }
 
-std::string Interpreter::stringify(const std::any& object) {
+std::any Interpreter::lookUpVariable(
+        const Token &name, 
+        std::shared_ptr<Expr> expr) {
+    for (auto [key, value] : locals) {
+        std::cout << std::any_cast<int>(value) << " ";
+    }
+    std::cout << '\n';
+    auto element = locals.find(expr);
+    if (element != locals.end()) {
+        int distance = element->second;
+        return environment->getAt(distance, name.lexeme);
+    } else {
+        return globals->get(name);
+    }
+}
+
+std::string Interpreter::stringify(std::any object) {
     if (!object.has_value()) return "nil";
 
     if (object.type() == typeid(double)) {

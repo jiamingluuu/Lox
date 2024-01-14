@@ -1,11 +1,12 @@
 #include <memory>
+#include <iostream>
 
 #include "../include/Expr.h"
 #include "../include/Lox.h"
 #include "../include/Parser.h"
 #include "../include/Token.h"
 
-Parser::Parser (std::vector<Token> tokens) : tokens(tokens) {}
+Parser::Parser (const std::vector<Token> &tokens) : tokens(tokens) {}
 
 std::vector<std::shared_ptr<Stmt>> Parser::parse() {
     std::vector<std::shared_ptr<Stmt>> statements;
@@ -372,7 +373,7 @@ bool Parser::match(std::initializer_list<TokenType> types) {
     return false;
 }
 
-Token Parser::consume(TokenType type, const std::string& message) {
+Token Parser::consume(TokenType type, std::string message) {
     if (check(type)) return advance();
 
     throw error(peek(), message);

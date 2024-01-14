@@ -9,7 +9,7 @@
 
 class Parser {
 public:
-    Parser(std::vector<Token> tokens);
+    Parser(const std::vector<Token> &tokens);
     std::vector<std::shared_ptr<Stmt>> parse();
 
 private:
@@ -20,7 +20,7 @@ private:
 
     ParserError error(Token token, const std::string& message);
 
-    std::vector<Token> tokens;
+    const std::vector<Token> &tokens;
     int current = 0;
 
     std::shared_ptr<Expr> expression();
@@ -50,7 +50,7 @@ private:
     void synchronize();
 
     bool match(std::initializer_list<TokenType> types);
-    Token consume(TokenType type, const std::string& message);
+    Token consume(TokenType type, std::string message);
     bool check(TokenType type);
     bool isAtEnd();
     Token peek();

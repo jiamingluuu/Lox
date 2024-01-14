@@ -1,5 +1,5 @@
 CXX = g++
-C_FLAGS = -g -Wall -Werror -std=c++17
+C_FLAGS = -g -Wall -std=c++17
 RM = rm
 
 OBJ_PATH = obj/
@@ -12,7 +12,8 @@ OBJ1 = Lox.o \
 	   Interpreter.o \
 	   RuntimeError.o \
 	   Environment.o \
-	   LoxFunction.o
+	   LoxFunction.o \
+	   Resolver.o
 
 OBJ = $(patsubst %,$(OBJ_PATH)%,$(OBJ1))
 
