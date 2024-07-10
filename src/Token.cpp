@@ -1,7 +1,7 @@
 #include "../include/Token.h"
 
-Token::Token(TokenType type, std::string lexeme, std::any literal, int line): 
-    type(type), lexeme(std::move(lexeme)), literal(literal), line(line) {}
+Token::Token(TokenType type, std::string lexeme, std::any literal, int line)
+    : type(type), lexeme(std::move(lexeme)), literal(literal), line(line) {}
 
 std::string tokenTypeToString(TokenType type) {
     switch (type) {
@@ -88,14 +88,14 @@ std::string tokenTypeToString(TokenType type) {
             return "END_OF_FILE";
 
         default:
-            exit(1); break;
+            exit(1);
+            break;
     }
 }
 
 std::ostream &operator<<(std::ostream &os, const Token &token) {
-    os << std::string("Token: ") <<  tokenTypeToString(token.type) 
-       << std::string(" ")  << token.lexeme  << std::string(" ") 
-       << std::to_string(token.line);
+    os << std::string("Token: ") << tokenTypeToString(token.type) << std::string(" ") << token.lexeme
+       << std::string(" ") << std::to_string(token.line);
 
     return os;
 }

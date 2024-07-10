@@ -1,22 +1,18 @@
-/* 
- * Filename: Scanner.h
- */
-#ifndef __SCANNER_H
-#define __SCANNER_H
+#pragma once
 
 #include <any>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
 #include "Token.h"
 
 class Scanner {
-public:
+ public:
     Scanner(const std::string& source);
     std::vector<Token> scanTokens();
 
-private:
+ private:
     std::string source;
     std::vector<Token> tokens;
     const static std::map<std::string, TokenType> keywords;
@@ -40,5 +36,3 @@ private:
     bool isDigit(char c);
     bool isAlphaNumeric(char c);
 };
-
-#endif /* __SCANNER_H */
