@@ -1,5 +1,4 @@
-#ifndef __LOX_CALLABLE_H
-#define __LOX_CALLABLE_H
+#pragma once
 
 #include <any>
 #include <string>
@@ -8,13 +7,10 @@
 class Interpreter;
 
 class LoxCallable {
-public:
+ public:
     virtual ~LoxCallable() = default;
 
     virtual int arity() = 0;
-    virtual std::any call(Interpreter& interpreter,
-            std::vector<std::any> arguments) = 0;
+    virtual std::any call(Interpreter& interpreter, std::vector<std::any> arguments) = 0;
     virtual std::string toString() = 0;
 };
-
-#endif /* __LOX_CALLABLE_H */

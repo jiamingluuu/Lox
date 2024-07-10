@@ -11,7 +11,7 @@
 
 #include "../include/Expr.h"
 
-class AstPrinter: public ExprVisitor<std::any> {
+class AstPrinter: public ExprVisitor {
 public:
     std::string print(std::shared_ptr<Expr> expr) {
         return std::any_cast<std::string>(expr->accept(*this));

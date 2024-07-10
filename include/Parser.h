@@ -1,24 +1,23 @@
-#ifndef __PARSER_H
-#define __PARSER_H
+#pragma once
 
 #include <vector>
 
 #include "Expr.h"
-#include "Token.h"
 #include "Stmt.h"
+#include "Token.h"
 
 class Parser {
-public:
+ public:
     Parser(const std::vector<Token> &tokens);
     std::vector<std::shared_ptr<Stmt>> parse();
 
-private:
+ private:
     class ParserError : public std::runtime_error {
-    public: 
-        ParserError(): std::runtime_error("") {}
+     public:
+        ParserError() : std::runtime_error("") {}
     };
 
-    ParserError error(Token token, const std::string& message);
+    ParserError error(Token token, const std::string &message);
 
     const std::vector<Token> &tokens;
     int current = 0;
@@ -28,7 +27,7 @@ private:
     std::shared_ptr<Stmt> declaration();
     std::shared_ptr<Stmt> forStatement();
     std::shared_ptr<Stmt> ifStatement();
-    std::shared_ptr<Stmt> whileStmt();
+    std::shared_ptr<Stmt> whileStatement();
     std::shared_ptr<Stmt> printStatement();
     std::shared_ptr<Stmt> returnStatement();
     std::shared_ptr<Stmt> varDeclaration();
@@ -36,8 +35,8 @@ private:
     std::shared_ptr<FunctionStmt> function(std::string kind);
     std::vector<std::shared_ptr<Stmt>> block();
     std::shared_ptr<Expr> assignment();
-    std::shared_ptr<Expr> orExpr();
-    std::shared_ptr<Expr> andExpr();
+    std::shared_ptr<Expr> orExpression();
+    std::shared_ptr<Expr> andExpression();
     std::shared_ptr<Expr> equality();
     std::shared_ptr<Expr> comparison();
     std::shared_ptr<Expr> term();
@@ -57,5 +56,3 @@ private:
     Token previous();
     Token advance();
 };
-
-#endif /* __PARSER_H */

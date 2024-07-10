@@ -1,7 +1,8 @@
-#include <iostream>
-#include <fstream>
-
 #include "../include/Lox.h"
+
+#include <fstream>
+#include <iostream>
+
 #include "../include/Parser.h"
 #include "../include/Resolver.h"
 #include "../include/Scanner.h"
@@ -11,7 +12,7 @@ bool Lox::hadError = false;
 bool Lox::hadRuntimeError = false;
 Interpreter interpreter{};
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     if (argc > 2) {
         std::cout << "Usage: lox [script]\n";
         exit(64);
@@ -31,17 +32,16 @@ void Lox::runFile(const std::string& path) {
 
     file.open(path);
     if (!file) {
-        std::cerr << "Failed to open file " << path << ": "
-                      << std::strerror(errno) << "\n";
+        std::cerr << "Failed to open file " << path << ": " << std::strerror(errno) << "\n";
         std::exit(74);
     }
 
     while (std::getline(file, line)) {
-        source += line + "\n";        
-    }    
+        source += line + "\n";
+    }
 
     file.close();
-    
+
     run(source);
 
     if (hadError) {
@@ -57,27 +57,31 @@ void Lox::runPrompt() {
         std::cout << "> ";
         std::string line;
         std::getline(std::cin, line);
-        if (line.length() == 0) { 
-            break; 
+        if (line.length() == 0) {
+            break;
         }
         run(line);
         hadError = false;
     }
 }
 
-void Lox::run(const std::string &source) {
+void Lox::run(const std::string& source) {
     Scanner scanner{source};
     std::vector<Token> tokens = scanner.scanTokens();
 
     Parser parser{tokens};
     std::vector<std::shared_ptr<Stmt>> statements = parser.parse();
 
-    if (hadError) return;
-    
+    if (hadError) {
+        return;
+    }
+
     Resolver resolver{interpreter};
     resolver.resolve(statements);
-    
-    if (hadError) return;
+
+    if (hadError) {
+        return;
+    }
 
     interpreter.interpret(statements);
 }

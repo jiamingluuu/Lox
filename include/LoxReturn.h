@@ -1,11 +1,8 @@
-#ifndef __LOX_RETURN_H
-#define __LOX_RETURN_H
+#pragma once
 
 #include <any>
 
 class LoxReturn {
-public:
+ public:
     const std::any value;
 };
-
-#endif /* __LOX_RETURN_H */
