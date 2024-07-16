@@ -25,7 +25,7 @@ struct ExprVisitor {
     virtual std::any visitLogicalExpr(std::shared_ptr<LogicalExpr> expr) = 0;
     virtual std::any visitUnaryExpr(std::shared_ptr<UnaryExpr> expr) = 0;
     virtual std::any visitVariableExpr(std::shared_ptr<VariableExpr> expr) = 0;
-    virtual ~ExprVisitor() = 0;
+    ~ExprVisitor() = default;
 };
 
 struct Expr {

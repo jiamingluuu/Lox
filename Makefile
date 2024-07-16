@@ -1,33 +1,61 @@
-CXX = g++
-C_FLAGS = -g -Wall -Werror -std=c++17
-RM = rm
+CXX       = clang++
+CXXFLAGS  = -std=c++17 -Wall -Werror
+DBGFLAGS  = -g
+COBJFLAGS = $(CXXFLAGS) -c
 
-OBJ_PATH = build/
-SRC_PATH = src/
+# path macros
+BIN_PATH = .
+OBJ_PATH = obj
+SRC_PATH = src
+DBG_PATH = debug
 
-OBJ1 = Lox.o \
-	   Scanner.o \
-	   Token.o \
-	   Parser.o \
-	   Interpreter.o \
-	   RuntimeError.o \
-	   Environment.o \
-	   LoxFunction.o \
-	   Resolver.o
+# compile macros
+TARGET_NAME := clox
+TARGET := $(BIN_PATH)/$(TARGET_NAME)
+TARGET_DEBUG := $(DBG_PATH)/$(TARGET_NAME)
 
-OBJ = $(patsubst %,$(OBJ_PATH)%,$(OBJ1))
+# src files & obj files
+SRC := $(foreach x, $(SRC_PATH), $(wildcard $(addprefix $(x)/*,.c*)))
+OBJ := $(addprefix $(OBJ_PATH)/, $(addsuffix .o, $(notdir $(basename $(SRC)))))
+OBJ_DEBUG := $(addprefix $(DBG_PATH)/, $(addsuffix .o, $(notdir $(basename $(SRC)))))
 
-TARGET = clox
+# clean files list
+DISTCLEAN_LIST := $(OBJ) \
+                  $(OBJ_DEBUG)
+CLEAN_LIST := $(TARGET) \
+			  $(TARGET_DEBUG) \
+			  $(DISTCLEAN_LIST)
 
+# default rule
+default: makedir all
+
+# non-phony targets
 $(TARGET): $(OBJ)
-	@echo [INFO] Creating Binary Executable [$(TARGET)]
-	@$(CXX) -o $@ $^
+	$(CXX) -o $@ $(OBJ) $(CXXFLAGS)
 
-$(OBJ_PATH)%.o: $(SRC_PATH)%.cpp
-	@echo [CC] $<
-	@$(CXX) $(C_FLAGS) -o $@ -c $<
+$(OBJ_PATH)/%.o: $(SRC_PATH)/%.c*
+	$(CXX) $(COBJFLAGS) -o $@ $<
+
+$(DBG_PATH)/%.o: $(SRC_PATH)/%.c*
+	$(CXX) $(COBJFLAGS) $(DBGFLAGS) -o $@ $<
+
+# phony rules
+.PHONY: makedir
+makedir:
+	@mkdir -p $(BIN_PATH) $(OBJ_PATH) $(DBG_PATH)
+
+.PHONY: all
+all: $(TARGET)
+
+.PHONY: debug
+debug: $(TARGET_DEBUG)
 
 .PHONY: clean
-clean: 
-	$(RM) -rfv $(OBJ_PATH)*
-	$(RM) $(TARGET)
+clean:
+	@echo CLEAN $(CLEAN_LIST)
+	@rm -f $(CLEAN_LIST)
+
+.PHONY: distclean
+distclean:
+	@echo CLEAN $(DISTCLEAN_LIST)
+	@rm -f $(DISTCLEAN_LIST)

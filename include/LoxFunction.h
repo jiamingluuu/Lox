@@ -7,7 +7,7 @@
 #include "LoxCallable.h"
 
 class Environment;
-class FunctionStmt;
+struct FunctionStmt;
 
 class LoxFunction : public LoxCallable {
  public:

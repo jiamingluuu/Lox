@@ -1,5 +1,4 @@
-#ifndef __RESOLVER_H
-#define __RESOLVER_H
+#pragma once
 
 #include "Expr.h"
 #include "Interpreter.h"
@@ -48,5 +47,3 @@ class Resolver : public ExprVisitor, public StmtVisitor {
     void declare(const Token &name);
     void define(const Token &name);
 };
-
-#endif /* __RESOLVER_H */
