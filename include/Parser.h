@@ -7,13 +7,13 @@
 #include "Token.h"
 
 class Parser {
- public:
+public:
     Parser(const std::vector<Token> &tokens);
     std::vector<std::shared_ptr<Stmt>> parse();
 
- private:
+private:
     class ParserError : public std::runtime_error {
-     public:
+    public:
         ParserError() : std::runtime_error("") {}
     };
 

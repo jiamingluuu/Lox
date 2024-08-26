@@ -8,11 +8,11 @@
 #include "Token.h"
 
 class Scanner {
- public:
-    Scanner(const std::string& source);
+public:
+    Scanner(const std::string &source);
     std::vector<Token> scanTokens();
 
- private:
+private:
     std::string source;
     std::vector<Token> tokens;
     const static std::map<std::string, TokenType> keywords;

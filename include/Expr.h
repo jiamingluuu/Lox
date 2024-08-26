@@ -2,7 +2,7 @@
 
 #include <any>
 #include <memory>
-#include <utility>  // std::move
+#include <utility> // std::move
 #include <vector>
 
 #include "Token.h"
@@ -29,15 +29,13 @@ struct ExprVisitor {
 };
 
 struct Expr {
-    virtual std::any accept(ExprVisitor& visitor) = 0;
+    virtual std::any accept(ExprVisitor &visitor) = 0;
 };
 
 struct AssignExpr final : Expr, public std::enable_shared_from_this<AssignExpr> {
     AssignExpr(Token name, std::shared_ptr<Expr> value) : name{std::move(name)}, value{std::move(value)} {}
 
-    std::any accept(ExprVisitor& visitor) override {
-        return visitor.visitAssignExpr(shared_from_this());
-    }
+    std::any accept(ExprVisitor &visitor) override { return visitor.visitAssignExpr(shared_from_this()); }
 
     const Token name;
     const std::shared_ptr<Expr> value;
@@ -47,9 +45,7 @@ struct BinaryExpr final : Expr, public std::enable_shared_from_this<BinaryExpr> 
     BinaryExpr(std::shared_ptr<Expr> left, Token op, std::shared_ptr<Expr> right)
         : left{std::move(left)}, op{std::move(op)}, right{std::move(right)} {}
 
-    std::any accept(ExprVisitor& visitor) override {
-        return visitor.visitBinaryExpr(shared_from_this());
-    }
+    std::any accept(ExprVisitor &visitor) override { return visitor.visitBinaryExpr(shared_from_this()); }
 
     const std::shared_ptr<Expr> left;
     const Token op;
@@ -60,9 +56,7 @@ struct CallExpr final : Expr, public std::enable_shared_from_this<CallExpr> {
     CallExpr(std::shared_ptr<Expr> callee, Token paren, std::vector<std::shared_ptr<Expr>> arguments)
         : callee{std::move(callee)}, paren{std::move(paren)}, arguments{std::move(arguments)} {}
 
-    std::any accept(ExprVisitor& visitor) override {
-        return visitor.visitCallExpr(shared_from_this());
-    }
+    std::any accept(ExprVisitor &visitor) override { return visitor.visitCallExpr(shared_from_this()); }
 
     const std::shared_ptr<Expr> callee;
     const Token paren;
@@ -72,9 +66,7 @@ struct CallExpr final : Expr, public std::enable_shared_from_this<CallExpr> {
 struct GroupingExpr final : Expr, public std::enable_shared_from_this<GroupingExpr> {
     GroupingExpr(std::shared_ptr<Expr> expression) : expression{std::move(expression)} {}
 
-    std::any accept(ExprVisitor& visitor) override {
-        return visitor.visitGroupingExpr(shared_from_this());
-    }
+    std::any accept(ExprVisitor &visitor) override { return visitor.visitGroupingExpr(shared_from_this()); }
 
     const std::shared_ptr<Expr> expression;
 };
@@ -82,9 +74,7 @@ struct GroupingExpr final : Expr, public std::enable_shared_from_this<GroupingEx
 struct LiteralExpr final : Expr, public std::enable_shared_from_this<LiteralExpr> {
     LiteralExpr(std::any value) : value{std::move(value)} {}
 
-    std::any accept(ExprVisitor& visitor) override {
-        return visitor.visitLiteralExpr(shared_from_this());
-    }
+    std::any accept(ExprVisitor &visitor) override { return visitor.visitLiteralExpr(shared_from_this()); }
 
     const std::any value;
 };
@@ -93,9 +83,7 @@ struct LogicalExpr final : Expr, public std::enable_shared_from_this<LogicalExpr
     LogicalExpr(std::shared_ptr<Expr> left, Token op, std::shared_ptr<Expr> right)
         : left{std::move(left)}, op{std::move(op)}, right{std::move(right)} {}
 
-    std::any accept(ExprVisitor& visitor) override {
-        return visitor.visitLogicalExpr(shared_from_this());
-    }
+    std::any accept(ExprVisitor &visitor) override { return visitor.visitLogicalExpr(shared_from_this()); }
 
     const std::shared_ptr<Expr> left;
     const Token op;
@@ -105,9 +93,7 @@ struct LogicalExpr final : Expr, public std::enable_shared_from_this<LogicalExpr
 struct UnaryExpr final : Expr, public std::enable_shared_from_this<UnaryExpr> {
     UnaryExpr(Token op, std::shared_ptr<Expr> right) : op{std::move(op)}, right{std::move(right)} {}
 
-    std::any accept(ExprVisitor& visitor) override {
-        return visitor.visitUnaryExpr(shared_from_this());
-    }
+    std::any accept(ExprVisitor &visitor) override { return visitor.visitUnaryExpr(shared_from_this()); }
 
     const Token op;
     const std::shared_ptr<Expr> right;
@@ -116,9 +102,7 @@ struct UnaryExpr final : Expr, public std::enable_shared_from_this<UnaryExpr> {
 struct VariableExpr final : Expr, public std::enable_shared_from_this<VariableExpr> {
     VariableExpr(Token name) : name{std::move(name)} {}
 
-    std::any accept(ExprVisitor& visitor) override {
-        return visitor.visitVariableExpr(shared_from_this());
-    }
+    std::any accept(ExprVisitor &visitor) override { return visitor.visitVariableExpr(shared_from_this()); }
 
     const Token name;
 };

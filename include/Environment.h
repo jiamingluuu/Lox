@@ -10,7 +10,7 @@
 class Environment : public std::enable_shared_from_this<Environment> {
     friend class Interpreter;
 
- public:
+public:
     Environment();
     Environment(std::shared_ptr<Environment> enclosing);
     void define(const std::string &name, std::any value);
@@ -22,7 +22,7 @@ class Environment : public std::enable_shared_from_this<Environment> {
 
     std::shared_ptr<Environment> enclosing;
 
- private:
+private:
     void print_values();
 
     std::map<std::string, std::any> values;

@@ -10,23 +10,19 @@
 #include "Stmt.h"
 
 class Clock : public LoxCallable {
- public:
-    int arity() override {
-        return 0;
-    }
+public:
+    int arity() override { return 0; }
 
     std::any call(Interpreter &interpreter, std::vector<std::any> arguments) override {
         auto now = std::chrono::system_clock::now().time_since_epoch();
         return std::chrono::duration<double>{now}.count() / 1000.0;
     }
 
-    std::string toString() override {
-        return "<native fn>";
-    }
+    std::string toString() override { return "<native fn>"; }
 };
 
 class Interpreter : public ExprVisitor, public StmtVisitor {
- public:
+public:
     std::shared_ptr<Environment> globals{new Environment};
     Interpreter();
     void interpret(const std::vector<std::shared_ptr<Stmt>> &statements);
@@ -49,7 +45,7 @@ class Interpreter : public ExprVisitor, public StmtVisitor {
     void executeBlock(const std::vector<std::shared_ptr<Stmt>> &statements, std::shared_ptr<Environment> environment);
     void resolve(std::shared_ptr<Expr> expr, int depth);
 
- private:
+private:
     std::shared_ptr<Environment> environment = globals;
     std::map<std::shared_ptr<Expr>, int> locals;
     std::any evaluate(std::shared_ptr<Expr> expr);

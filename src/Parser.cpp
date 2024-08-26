@@ -1,14 +1,12 @@
 #include "../include/Parser.h"
 
-#include <iostream>
 #include <memory>
 
 #include "../include/Expr.h"
 #include "../include/Lox.h"
 #include "../include/Token.h"
 
-Parser::Parser(const std::vector<Token>& tokens) : tokens{tokens} {
-}
+Parser::Parser(const std::vector<Token> &tokens) : tokens{tokens} {}
 
 std::vector<std::shared_ptr<Stmt>> Parser::parse() {
     std::vector<std::shared_ptr<Stmt>> statements;
@@ -19,9 +17,7 @@ std::vector<std::shared_ptr<Stmt>> Parser::parse() {
     return statements;
 }
 
-std::shared_ptr<Expr> Parser::expression() {
-    return assignment();
-}
+std::shared_ptr<Expr> Parser::expression() { return assignment(); }
 
 std::shared_ptr<Stmt> Parser::declaration() {
     try {
@@ -200,7 +196,7 @@ std::shared_ptr<Expr> Parser::assignment() {
         Token equals = previous();
         std::shared_ptr<Expr> value = assignment();
 
-        if (VariableExpr* e = dynamic_cast<VariableExpr*>(expr.get())) {
+        if (VariableExpr *e = dynamic_cast<VariableExpr *>(expr.get())) {
             Token name = e->name;
             return std::make_shared<AssignExpr>(std::move(name), value);
         }
@@ -384,19 +380,13 @@ Token Parser::advance() {
     return previous();
 }
 
-bool Parser::isAtEnd() {
-    return peek().type == END_OF_FILE;
-}
+bool Parser::isAtEnd() { return peek().type == END_OF_FILE; }
 
-Token Parser::peek() {
-    return tokens.at(current);
-}
+Token Parser::peek() { return tokens.at(current); }
 
-Token Parser::previous() {
-    return tokens.at(current - 1);
-}
+Token Parser::previous() { return tokens.at(current - 1); }
 
-Parser::ParserError Parser::error(Token token, const std::string& message) {
+Parser::ParserError Parser::error(Token token, const std::string &message) {
     Lox::error(token, message);
     return ParserError{};
 }
@@ -404,7 +394,8 @@ Parser::ParserError Parser::error(Token token, const std::string& message) {
 void Parser::synchronize() {
     advance();
     while (!isAtEnd()) {
-        if (previous().type == SEMICOLON) return;
+        if (previous().type == SEMICOLON)
+            return;
 
         // switch (peek().type) {
         //     case CLASS:

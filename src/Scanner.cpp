@@ -24,87 +24,87 @@ void Scanner::scanToken() {
     char c = advance();
 
     switch (c) {
-        case '/':
-            if (match('/')) {
-                while (peek() != '\n' && !isAtEnd()) {
-                    advance();
-                }
-            } else if (match('*')) {
+    case '/':
+        if (match('/')) {
+            while (peek() != '\n' && !isAtEnd()) {
                 advance();
-                blockComment();
-            } else {
-                addToken(SLASH);
             }
-            break;
+        } else if (match('*')) {
+            advance();
+            blockComment();
+        } else {
+            addToken(SLASH);
+        }
+        break;
 
-        case '(':
-            addToken(LEFT_PAREN);
-            break;
-        case ')':
-            addToken(RIGHT_PAREN);
-            break;
-        case '{':
-            addToken(LEFT_BRACE);
-            break;
-        case '}':
-            addToken(RIGHT_BRACE);
-            break;
-        case ',':
-            addToken(COMMA);
-            break;
-        case '.':
-            addToken(DOT);
-            break;
-        case '-':
-            addToken(MINUS);
-            break;
-        case '+':
-            addToken(PLUS);
-            break;
-        case ';':
-            addToken(SEMICOLON);
-            break;
-        case '*':
-            addToken(STAR);
-            break;
+    case '(':
+        addToken(LEFT_PAREN);
+        break;
+    case ')':
+        addToken(RIGHT_PAREN);
+        break;
+    case '{':
+        addToken(LEFT_BRACE);
+        break;
+    case '}':
+        addToken(RIGHT_BRACE);
+        break;
+    case ',':
+        addToken(COMMA);
+        break;
+    case '.':
+        addToken(DOT);
+        break;
+    case '-':
+        addToken(MINUS);
+        break;
+    case '+':
+        addToken(PLUS);
+        break;
+    case ';':
+        addToken(SEMICOLON);
+        break;
+    case '*':
+        addToken(STAR);
+        break;
 
-        case '!':
-            addToken(match('=') ? BANG_EQUAL : BANG);
-            break;
-        case '=':
-            addToken(match('=') ? EQUAL_EQUAL : EQUAL);
-            break;
-        case '<':
-            addToken(match('=') ? LESS_EQUAL : LESS);
-            break;
-        case '>':
-            addToken(match('=') ? GREATER_EQUAL : GREATER);
-            break;
-        case ' ':
-        case '\r':
-        case '\t':
-            // Ignore whitespace.
-            break;
-        case '\n':
-            line++;
-            break;
-        case '"':
-            string();
-            break;
-        case 'o':
-            if (match('r')) {
-                addToken(OR);
-            }
-            break;
-        default:
-            if (isDigit(c)) {
-                number();
-            } else if (isAlpha(c)) {
-                identifier();
-            } else {
-                Lox::error(line, "Unexpected character.");
-            }
-            break;
+    case '!':
+        addToken(match('=') ? BANG_EQUAL : BANG);
+        break;
+    case '=':
+        addToken(match('=') ? EQUAL_EQUAL : EQUAL);
+        break;
+    case '<':
+        addToken(match('=') ? LESS_EQUAL : LESS);
+        break;
+    case '>':
+        addToken(match('=') ? GREATER_EQUAL : GREATER);
+        break;
+    case ' ':
+    case '\r':
+    case '\t':
+        // Ignore whitespace.
+        break;
+    case '\n':
+        line++;
+        break;
+    case '"':
+        string();
+        break;
+    case 'o':
+        if (match('r')) {
+            addToken(OR);
+        }
+        break;
+    default:
+        if (isDigit(c)) {
+            number();
+        } else if (isAlpha(c)) {
+            identifier();
+        } else {
+            Lox::error(line, "Unexpected character.");
+        }
+        break;
     }
 }
 
@@ -179,13 +179,9 @@ void Scanner::identifier() {
     addToken(type);
 }
 
-bool Scanner::isAtEnd() {
-    return current >= source.length();
-}
+bool Scanner::isAtEnd() { return current >= source.length(); }
 
-char Scanner::advance() {
-    return source[current++];
-}
+char Scanner::advance() { return source[current++]; }
 
 void Scanner::addToken(TokenType type, std::any literal) {
     tokens.push_back(Token(type, source.substr(start, current - start), literal, line));
@@ -208,9 +204,7 @@ bool Scanner::match(char expected) {
     return true;
 }
 
-char Scanner::peek() {
-    return source[current];
-}
+char Scanner::peek() { return source[current]; }
 
 char Scanner::peekNext() {
     if (current + 1 >= source.length()) {
@@ -219,14 +213,8 @@ char Scanner::peekNext() {
     return source[current + 1];
 }
 
-bool Scanner::isAlpha(char c) {
-    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
-}
+bool Scanner::isAlpha(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'; }
 
-bool Scanner::isDigit(char c) {
-    return c >= '0' && c <= '9';
-}
+bool Scanner::isDigit(char c) { return c >= '0' && c <= '9'; }
 
-bool Scanner::isAlphaNumeric(char c) {
-    return isAlpha(c) || isDigit(c);
-}
+bool Scanner::isAlphaNumeric(char c) { return isAlpha(c) || isDigit(c); }

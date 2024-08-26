@@ -8,13 +8,11 @@
 #include "../include/LoxReturn.h"
 #include "../include/RuntimeError.h"
 
-Interpreter::Interpreter() {
-    globals->define("clock", std::shared_ptr<Clock>{});
-}
+Interpreter::Interpreter() { globals->define("clock", std::shared_ptr<Clock>{}); }
 
-void Interpreter::interpret(const std::vector<std::shared_ptr<Stmt>>& statements) {
+void Interpreter::interpret(const std::vector<std::shared_ptr<Stmt>> &statements) {
     try {
-        for (const std::shared_ptr<Stmt>& statement : statements) {
+        for (const std::shared_ptr<Stmt> &statement : statements) {
             execute(statement);
         }
     } catch (RuntimeError error) {
@@ -22,23 +20,18 @@ void Interpreter::interpret(const std::vector<std::shared_ptr<Stmt>>& statements
     }
 }
 
-std::any Interpreter::evaluate(std::shared_ptr<Expr> expr) {
-    return expr->accept(*this);
-}
+std::any Interpreter::evaluate(std::shared_ptr<Expr> expr) { return expr->accept(*this); }
 
-void Interpreter::execute(std::shared_ptr<Stmt> stmt) {
-    stmt->accept(*this);
-}
+void Interpreter::execute(std::shared_ptr<Stmt> stmt) { stmt->accept(*this); }
 
-void Interpreter::resolve(std::shared_ptr<Expr> expr, int depth) {
-    locals[expr] = depth;
-}
+void Interpreter::resolve(std::shared_ptr<Expr> expr, int depth) { locals[expr] = depth; }
 
-void Interpreter::executeBlock(const std::vector<std::shared_ptr<Stmt>>& statements, std::shared_ptr<Environment> environment) {
+void Interpreter::executeBlock(const std::vector<std::shared_ptr<Stmt>> &statements,
+                               std::shared_ptr<Environment> environment) {
     std::shared_ptr<Environment> previous = this->environment;
     try {
         this->environment = environment;
-        for (const std::shared_ptr<Stmt>& statement : statements) {
+        for (const std::shared_ptr<Stmt> &statement : statements) {
             execute(statement);
         }
     } catch (...) {
@@ -53,9 +46,7 @@ void Interpreter::visitBlockStmt(std::shared_ptr<BlockStmt> stmt) {
     executeBlock(stmt->statements, std::make_shared<Environment>(environment));
 }
 
-void Interpreter::visitExpressionStmt(std::shared_ptr<ExpressionStmt> stmt) {
-    evaluate(stmt->expression);
-}
+void Interpreter::visitExpressionStmt(std::shared_ptr<ExpressionStmt> stmt) { evaluate(stmt->expression); }
 
 void Interpreter::visitFunctionStmt(std::shared_ptr<FunctionStmt> stmt) {
     auto function = std::make_shared<LoxFunction>(stmt, environment);
@@ -118,43 +109,43 @@ std::any Interpreter::visitBinaryExpr(std::shared_ptr<BinaryExpr> expr) {
     std::any right = evaluate(expr->right);
 
     switch (expr->op.type) {
-        case BANG_EQUAL:
-            return !isEqual(left, right);
-        case EQUAL_EQUAL:
-            return isEqual(left, right);
-        case GREATER:
-            checkNumberOperands(expr->op, left, right);
-            return std::any_cast<double>(left) > std::any_cast<double>(right);
-        case GREATER_EQUAL:
-            checkNumberOperands(expr->op, left, right);
-            return std::any_cast<double>(left) >= std::any_cast<double>(right);
-        case LESS:
-            checkNumberOperands(expr->op, left, right);
-            return std::any_cast<double>(left) < std::any_cast<double>(right);
-        case LESS_EQUAL:
-            checkNumberOperands(expr->op, left, right);
-            return std::any_cast<double>(left) <= std::any_cast<double>(right);
-        case MINUS:
-            checkNumberOperands(expr->op, left, right);
-            return std::any_cast<double>(left) - std::any_cast<double>(right);
-        case PLUS:
-            if (left.type() == typeid(double) && right.type() == typeid(double)) {
-                return std::any_cast<double>(left) + std::any_cast<double>(right);
-            }
+    case BANG_EQUAL:
+        return !isEqual(left, right);
+    case EQUAL_EQUAL:
+        return isEqual(left, right);
+    case GREATER:
+        checkNumberOperands(expr->op, left, right);
+        return std::any_cast<double>(left) > std::any_cast<double>(right);
+    case GREATER_EQUAL:
+        checkNumberOperands(expr->op, left, right);
+        return std::any_cast<double>(left) >= std::any_cast<double>(right);
+    case LESS:
+        checkNumberOperands(expr->op, left, right);
+        return std::any_cast<double>(left) < std::any_cast<double>(right);
+    case LESS_EQUAL:
+        checkNumberOperands(expr->op, left, right);
+        return std::any_cast<double>(left) <= std::any_cast<double>(right);
+    case MINUS:
+        checkNumberOperands(expr->op, left, right);
+        return std::any_cast<double>(left) - std::any_cast<double>(right);
+    case PLUS:
+        if (left.type() == typeid(double) && right.type() == typeid(double)) {
+            return std::any_cast<double>(left) + std::any_cast<double>(right);
+        }
 
-            if (left.type() == typeid(std::string) && right.type() == typeid(std::string)) {
-                return std::any_cast<std::string>(left) + std::any_cast<std::string>(right);
-            }
+        if (left.type() == typeid(std::string) && right.type() == typeid(std::string)) {
+            return std::any_cast<std::string>(left) + std::any_cast<std::string>(right);
+        }
 
-            throw RuntimeError{expr->op, "Operands must be two numbers or two strings."};
-        case SLASH:
-            checkNumberOperands(expr->op, left, right);
-            return std::any_cast<double>(left) / std::any_cast<double>(right);
-        case STAR:
-            checkNumberOperands(expr->op, left, right);
-            return std::any_cast<double>(left) * std::any_cast<double>(right);
-        default:
-            return {};
+        throw RuntimeError{expr->op, "Operands must be two numbers or two strings."};
+    case SLASH:
+        checkNumberOperands(expr->op, left, right);
+        return std::any_cast<double>(left) / std::any_cast<double>(right);
+    case STAR:
+        checkNumberOperands(expr->op, left, right);
+        return std::any_cast<double>(left) * std::any_cast<double>(right);
+    default:
+        return {};
     }
 
     // Unreachable.
@@ -165,7 +156,7 @@ std::any Interpreter::visitCallExpr(std::shared_ptr<CallExpr> expr) {
     std::any callee = evaluate(expr->callee);
 
     std::vector<std::any> arguments;
-    for (const std::shared_ptr<Expr>& argument : expr->arguments) {
+    for (const std::shared_ptr<Expr> &argument : expr->arguments) {
         arguments.push_back(evaluate(argument));
     }
 
@@ -185,13 +176,9 @@ std::any Interpreter::visitCallExpr(std::shared_ptr<CallExpr> expr) {
     return function->call(*this, std::move(arguments));
 }
 
-std::any Interpreter::visitGroupingExpr(std::shared_ptr<GroupingExpr> expr) {
-    return evaluate(expr->expression);
-}
+std::any Interpreter::visitGroupingExpr(std::shared_ptr<GroupingExpr> expr) { return evaluate(expr->expression); }
 
-std::any Interpreter::visitLiteralExpr(std::shared_ptr<LiteralExpr> expr) {
-    return expr->value;
-}
+std::any Interpreter::visitLiteralExpr(std::shared_ptr<LiteralExpr> expr) { return expr->value; }
 
 std::any Interpreter::visitLogicalExpr(std::shared_ptr<LogicalExpr> expr) {
     std::any left = evaluate(expr->left);
@@ -213,24 +200,22 @@ std::any Interpreter::visitUnaryExpr(std::shared_ptr<UnaryExpr> expr) {
     std::any right = evaluate(expr->right);
 
     switch (expr->op.type) {
-        case BANG:
-            return !isTruthy(right);
-        case MINUS:
-            checkNumberOperand(expr->op, right);
-            return -std::any_cast<double>(right);
-        default:
-            return std::any{};
+    case BANG:
+        return !isTruthy(right);
+    case MINUS:
+        checkNumberOperand(expr->op, right);
+        return -std::any_cast<double>(right);
+    default:
+        return std::any{};
     }
 
     // Unreachable.
     return {};
 }
 
-std::any Interpreter::visitVariableExpr(std::shared_ptr<VariableExpr> expr) {
-    return lookUpVariable(expr->name, expr);
-}
+std::any Interpreter::visitVariableExpr(std::shared_ptr<VariableExpr> expr) { return lookUpVariable(expr->name, expr); }
 
-std::any Interpreter::lookUpVariable(const Token& name, std::shared_ptr<Expr> expr) {
+std::any Interpreter::lookUpVariable(const Token &name, std::shared_ptr<Expr> expr) {
     auto elem = locals.find(expr);
     if (elem != locals.end()) {
         int distance = elem->second;
@@ -240,14 +225,14 @@ std::any Interpreter::lookUpVariable(const Token& name, std::shared_ptr<Expr> ex
     }
 }
 
-void Interpreter::checkNumberOperand(const Token& op, const std::any& operand) {
+void Interpreter::checkNumberOperand(const Token &op, const std::any &operand) {
     if (operand.type() == typeid(double)) {
         return;
     }
     throw RuntimeError{op, "Operand must be a number."};
 }
 
-void Interpreter::checkNumberOperands(const Token& op, const std::any& left, const std::any& right) {
+void Interpreter::checkNumberOperands(const Token &op, const std::any &left, const std::any &right) {
     if (left.type() == typeid(double) && right.type() == typeid(double)) {
         return;
     }
@@ -255,7 +240,7 @@ void Interpreter::checkNumberOperands(const Token& op, const std::any& left, con
     throw RuntimeError{op, "Operands must be numbers."};
 }
 
-bool Interpreter::isTruthy(const std::any& object) {
+bool Interpreter::isTruthy(const std::any &object) {
     if (object.type() == typeid(nullptr)) {
         return false;
     }
@@ -265,7 +250,7 @@ bool Interpreter::isTruthy(const std::any& object) {
     return true;
 }
 
-bool Interpreter::isEqual(const std::any& a, const std::any& b) {
+bool Interpreter::isEqual(const std::any &a, const std::any &b) {
     if (a.type() == typeid(nullptr) && b.type() == typeid(nullptr)) {
         return true;
     }
@@ -286,7 +271,7 @@ bool Interpreter::isEqual(const std::any& a, const std::any& b) {
     return false;
 }
 
-std::string Interpreter::stringify(const std::any& object) {
+std::string Interpreter::stringify(const std::any &object) {
     if (object.type() == typeid(nullptr)) {
         return "nil";
     }

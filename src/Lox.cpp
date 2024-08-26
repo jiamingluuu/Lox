@@ -12,7 +12,7 @@ bool Lox::hadError = false;
 bool Lox::hadRuntimeError = false;
 Interpreter interpreter{};
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
     if (argc > 2) {
         std::cout << "Usage: lox [script]\n";
         exit(64);
@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-void Lox::runFile(const std::string& path) {
+void Lox::runFile(const std::string &path) {
     std::ifstream file;
     std::string line;
     std::string source;
@@ -65,7 +65,7 @@ void Lox::runPrompt() {
     }
 }
 
-void Lox::run(const std::string& source) {
+void Lox::run(const std::string &source) {
     Scanner scanner{source};
     std::vector<Token> tokens = scanner.scanTokens();
 
@@ -86,16 +86,14 @@ void Lox::run(const std::string& source) {
     interpreter.interpret(statements);
 }
 
-void Lox::error(int line, const std::string& message) {
-    report(line, "", message);
-}
+void Lox::error(int line, const std::string &message) { report(line, "", message); }
 
-void Lox::report(int line, const std::string& where, const std::string& message) {
+void Lox::report(int line, const std::string &where, const std::string &message) {
     std::cout << "[line " << line << "] Error" << where << ": " << message << "\n";
     hadError = true;
 }
 
-void Lox::error(Token token, const std::string& message) {
+void Lox::error(Token token, const std::string &message) {
     if (token.type == END_OF_FILE) {
         report(token.line, " at end", message);
     } else {

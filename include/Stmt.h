@@ -37,9 +37,7 @@ struct BlockStmt : public Stmt {
 
     BlockStmt(std::vector<std::shared_ptr<Stmt>> statements) : statements(std::move(statements)) {}
 
-    void accept(StmtVisitor &visitor) override {
-        visitor.visitBlockStmt(std::make_shared<BlockStmt>(*this));
-    }
+    void accept(StmtVisitor &visitor) override { visitor.visitBlockStmt(std::make_shared<BlockStmt>(*this)); }
 };
 
 struct ExpressionStmt : public Stmt {
@@ -47,9 +45,7 @@ struct ExpressionStmt : public Stmt {
 
     ExpressionStmt(std::shared_ptr<Expr> expression) : expression(std::move(expression)) {}
 
-    void accept(StmtVisitor &visitor) override {
-        visitor.visitExpressionStmt(std::make_shared<ExpressionStmt>(*this));
-    }
+    void accept(StmtVisitor &visitor) override { visitor.visitExpressionStmt(std::make_shared<ExpressionStmt>(*this)); }
 };
 
 struct FunctionStmt : public Stmt {
@@ -60,9 +56,7 @@ struct FunctionStmt : public Stmt {
     FunctionStmt(Token name, std::vector<Token> parameters, std::vector<std::shared_ptr<Stmt>> body)
         : name(std::move(name)), parameters(std::move(parameters)), body(std::move(body)) {}
 
-    void accept(StmtVisitor &visitor) override {
-        visitor.visitFunctionStmt(std::make_shared<FunctionStmt>(*this));
-    }
+    void accept(StmtVisitor &visitor) override { visitor.visitFunctionStmt(std::make_shared<FunctionStmt>(*this)); }
 };
 
 struct IfStmt : public Stmt {
@@ -73,9 +67,7 @@ struct IfStmt : public Stmt {
     IfStmt(std::shared_ptr<Expr> condition, std::shared_ptr<Stmt> thenBranch, std::shared_ptr<Stmt> elseBranch)
         : condition(std::move(condition)), thenBranch(std::move(thenBranch)), elseBranch(std::move(elseBranch)) {}
 
-    void accept(StmtVisitor &visitor) override {
-        visitor.visitIfStmt(std::make_shared<IfStmt>(*this));
-    }
+    void accept(StmtVisitor &visitor) override { visitor.visitIfStmt(std::make_shared<IfStmt>(*this)); }
 };
 
 struct PrintStmt : public Stmt {
@@ -83,9 +75,7 @@ struct PrintStmt : public Stmt {
 
     PrintStmt(std::shared_ptr<Expr> expression) : expression(std::move(expression)) {}
 
-    void accept(StmtVisitor &visitor) override {
-        visitor.visitPrintStmt(std::make_shared<PrintStmt>(*this));
-    }
+    void accept(StmtVisitor &visitor) override { visitor.visitPrintStmt(std::make_shared<PrintStmt>(*this)); }
 };
 
 struct ReturnStmt : public Stmt {
@@ -94,9 +84,7 @@ struct ReturnStmt : public Stmt {
 
     ReturnStmt(Token keyword, std::shared_ptr<Expr> value) : keyword(std::move(keyword)), value(std::move(value)) {}
 
-    void accept(StmtVisitor &visitor) override {
-        visitor.visitReturnStmt(std::make_shared<ReturnStmt>(*this));
-    }
+    void accept(StmtVisitor &visitor) override { visitor.visitReturnStmt(std::make_shared<ReturnStmt>(*this)); }
 };
 
 struct WhileStmt : public Stmt {
@@ -106,9 +94,7 @@ struct WhileStmt : public Stmt {
     WhileStmt(std::shared_ptr<Expr> condition, std::shared_ptr<Stmt> body)
         : condition(std::move(condition)), body(std::move(body)) {}
 
-    void accept(StmtVisitor &visitor) override {
-        visitor.visitWhileStmt(std::make_shared<WhileStmt>(*this));
-    }
+    void accept(StmtVisitor &visitor) override { visitor.visitWhileStmt(std::make_shared<WhileStmt>(*this)); }
 };
 
 struct VarStmt : public Stmt {
@@ -118,7 +104,5 @@ struct VarStmt : public Stmt {
     VarStmt(Token name, std::shared_ptr<Expr> initializer)
         : name(std::move(name)), initializer(std::move(initializer)) {}
 
-    void accept(StmtVisitor &visitor) override {
-        visitor.visitVarStmt(std::make_shared<VarStmt>(*this));
-    }
+    void accept(StmtVisitor &visitor) override { visitor.visitVarStmt(std::make_shared<VarStmt>(*this)); }
 };

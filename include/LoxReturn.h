@@ -3,6 +3,6 @@
 #include <any>
 
 class LoxReturn {
- public:
+public:
     const std::any value;
 };

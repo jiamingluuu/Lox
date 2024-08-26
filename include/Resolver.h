@@ -6,7 +6,7 @@
 #include "Stmt.h"
 
 class Resolver : public ExprVisitor, public StmtVisitor {
- public:
+public:
     Resolver(Interpreter &interpreter);
     void resolve(const std::vector<std::shared_ptr<Stmt>> &statements);
 
@@ -28,7 +28,7 @@ class Resolver : public ExprVisitor, public StmtVisitor {
     std::any visitUnaryExpr(std::shared_ptr<UnaryExpr> expr) override;
     std::any visitVariableExpr(std::shared_ptr<VariableExpr> expr) override;
 
- private:
+private:
     enum class FunctionType {
         NONE,
         FUNCTION,
